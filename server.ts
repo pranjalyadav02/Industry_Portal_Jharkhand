@@ -5,7 +5,7 @@ import apiApp from "./server/app";
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3004;
 
   // Mount the extracted API router
   app.use(apiApp);
@@ -27,7 +27,7 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://0.0.0.0:${PORT}`);
+    console.log(`[Industry_Portal_Jharkhand] Server running on http://localhost:${PORT}`);
   });
 }
 

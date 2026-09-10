@@ -55,6 +55,27 @@ export default function App() {
   const [isNotificationsOpen, setIsNotificationsOpen] = React.useState<boolean>(false);
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
 
+  // Sync with backend API on mount
+  React.useEffect(() => {
+    fetch('/api/v1/industry/opportunities')
+      .then(r => r.ok ? r.json() : null)
+      .then(res => {
+        if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+          setOpportunities(res.data);
+        }
+      })
+      .catch(() => {});
+
+    fetch('/api/v1/industry/collaborations')
+      .then(r => r.ok ? r.json() : null)
+      .then(res => {
+        if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+          setCollaborations(res.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 4000);
@@ -128,6 +149,18 @@ export default function App() {
     };
 
     setCollaborations([newCollaboration, ...collaborations]);
+    
+    // Sync to backend API
+    fetch(`/api/v1/industry/opportunities/${interestModalOpp.id}/interest`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        orgName: currentOrg.name,
+        interestType: data.modes.join(', '),
+        message: data.notes,
+        offeredSupport: data.modes
+      }),
+    }).catch(() => {});
     
     // Update opportunity committed funding
     setOpportunities(prev => prev.map(o => {
