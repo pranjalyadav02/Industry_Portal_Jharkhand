@@ -39,16 +39,11 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
   onOpenAudit
 }) => {
   const topMatch = opportunities.find(o => o.id === 'PR-2026-0019') || opportunities[0];
-  const [selectedDistrict, setSelectedDistrict] = React.useState<string>('Gumla');
 
-  const districtSummary: Record<string, { projects: number; beneficiaries: string; domain: string }> = {
-    'Gumla': { projects: 3, beneficiaries: '34,500', domain: 'Water & Sanitation' },
-    'Khunti': { projects: 4, beneficiaries: '28,200', domain: 'Agriculture & Cold Chain' },
-    'West Singhbhum': { projects: 2, beneficiaries: '48,000', domain: 'Tribal Healthcare' },
-    'Dhanbad': { projects: 3, beneficiaries: '72,000', domain: 'Groundwater & Mines' },
-    'Ranchi': { projects: 6, beneficiaries: '110,000', domain: 'Agri-AI & MedTech' },
-    'East Singhbhum': { projects: 5, beneficiaries: '95,000', domain: 'Industrial Safety & Tech' }
-  };
+  // Compute KPI totals from real props
+  const totalCommitted = collaborations.reduce((sum, c) => sum + (c.totalCommitment || 0), 0);
+  const totalReleased = collaborations.reduce((sum, c) => sum + (c.releasedAmount || 0), 0);
+  const activeDistricts = [...new Set(collaborations.map(c => c.district).filter(Boolean))].length;
 
   return (
     <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto overflow-y-auto">
@@ -92,19 +87,21 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
           <p className="text-slate-400 text-[10px] uppercase font-extrabold tracking-wider">Active Collaborations</p>
           <div className="flex items-baseline justify-between mt-2">
             <span className="text-2xl md:text-3xl font-black text-slate-900">{collaborations.length}</span>
-            <span className="text-emerald-700 font-bold text-xs bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">+2 this month</span>
+            {collaborations.length === 0 && <span className="text-slate-400 text-xs">None yet</span>}
           </div>
           <p className="text-[11px] text-slate-500 mt-2 flex items-center gap-1">
             <CheckCircle2 className="w-3 h-3 text-blue-600" />
-            Across 4 state universities
+            Active in Jharkhand
           </p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl shadow-xs border border-slate-200/80 hover:border-slate-300 transition-all">
           <p className="text-slate-400 text-[10px] uppercase font-extrabold tracking-wider">Funding Committed</p>
           <div className="flex items-baseline justify-between mt-2">
-            <span className="text-2xl md:text-3xl font-black text-slate-900">₹62.0 L</span>
-            <span className="text-blue-700 font-bold text-xs bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">₹40L Released</span>
+            <span className="text-2xl md:text-3xl font-black text-slate-900">
+              {totalCommitted > 0 ? `₹${(totalCommitted/100000).toFixed(1)}L` : '—'}
+            </span>
+            {totalReleased > 0 && <span className="text-blue-700 font-bold text-xs bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">₹{(totalReleased/100000).toFixed(1)}L Released</span>}
           </div>
           <p className="text-[11px] text-slate-500 mt-2 flex items-center gap-1">
             <Clock className="w-3 h-3 text-slate-400" />
@@ -113,26 +110,26 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
         </div>
 
         <div className="bg-white p-5 rounded-2xl shadow-xs border border-slate-200/80 hover:border-slate-300 transition-all">
-          <p className="text-slate-400 text-[10px] uppercase font-extrabold tracking-wider">Solutions in Field</p>
+          <p className="text-slate-400 text-[10px] uppercase font-extrabold tracking-wider">Opportunities</p>
           <div className="flex items-baseline justify-between mt-2">
-            <span className="text-2xl md:text-3xl font-black text-slate-900">8 Pilots</span>
-            <span className="text-indigo-700 font-bold text-xs bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200">6 Districts</span>
+            <span className="text-2xl md:text-3xl font-black text-slate-900">{opportunities.length}</span>
+            {activeDistricts > 0 && <span className="text-indigo-700 font-bold text-xs bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200">{activeDistricts} Districts</span>}
           </div>
           <p className="text-[11px] text-slate-500 mt-2 flex items-center gap-1">
             <Layers className="w-3 h-3 text-slate-400" />
-            TRL 5 to TRL 7 stages
+            Open for industry engagement
           </p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl shadow-xs border border-slate-200/80 hover:border-slate-300 transition-all">
-          <p className="text-slate-400 text-[10px] uppercase font-extrabold tracking-wider">Impacted Population</p>
+          <p className="text-slate-400 text-[10px] uppercase font-extrabold tracking-wider">Districts Covered</p>
           <div className="flex items-baseline justify-between mt-2">
-            <span className="text-2xl md:text-3xl font-black text-slate-900">425K</span>
-            <span className="text-emerald-700 font-bold text-xs bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Verified</span>
+            <span className="text-2xl md:text-3xl font-black text-slate-900">{activeDistricts || '—'}</span>
+            <span className="text-emerald-700 font-bold text-xs bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">of 24</span>
           </div>
           <p className="text-[11px] text-slate-500 mt-2 flex items-center gap-1">
             <Users className="w-3 h-3 text-emerald-600" />
-            Govt & community verified
+            Jharkhand districts
           </p>
         </div>
       </div>
@@ -280,79 +277,34 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
           </div>
         </div>
 
-        {/* Right Col: Geographic Map + CSR Progress + Risk Alert */}
         <div className="space-y-6">
-          {/* Geographic Impact Map Box */}
+          {/* Active Districts from Collaborations */}
           <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-bold text-slate-900 text-sm">Jharkhand Impact Map</h3>
+              <h3 className="font-bold text-slate-900 text-sm">Active Districts</h3>
               <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
-                6/24 Districts Active
+                {activeDistricts}/24 Districts
               </span>
             </div>
 
-            {/* Interactive District Pills & Visual map */}
-            <div className="bg-slate-900 rounded-xl p-4 text-white relative overflow-hidden">
-              <div className="flex items-center justify-between text-[11px] text-slate-400 mb-2">
-                <span>Selected District:</span>
-                <span className="text-blue-400 font-bold text-xs">{selectedDistrict}</span>
+            {activeDistricts === 0 ? (
+              <div className="text-center py-8 text-slate-400">
+                <MapPin className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                <p className="text-xs">No collaborations yet.</p>
+                <p className="text-[11px] mt-1">Express interest in an opportunity to activate districts.</p>
               </div>
-
-              {/* Stylized SVG Map Representation of Jharkhand Districts */}
-              <div className="h-36 bg-slate-950/70 rounded-lg p-3 relative flex items-center justify-center border border-slate-800">
-                <svg viewBox="0 0 200 120" className="w-full h-full text-slate-700">
-                  {/* Stylized outline of Jharkhand */}
-                  <polygon 
-                    points="30,40 70,20 130,15 170,30 185,75 140,110 80,115 20,85" 
-                    fill="#1E293B" 
-                    stroke="#334155" 
-                    strokeWidth="2"
-                  />
-                  {/* District nodes */}
-                  <circle cx="65" cy="75" r="7" className={`cursor-pointer transition-all ${selectedDistrict === 'Gumla' ? 'fill-blue-500 stroke-white stroke-2' : 'fill-slate-600'}`} onClick={() => setSelectedDistrict('Gumla')} />
-                  <circle cx="95" cy="65" r="8" className={`cursor-pointer transition-all ${selectedDistrict === 'Ranchi' ? 'fill-blue-500 stroke-white stroke-2' : 'fill-blue-600'}`} onClick={() => setSelectedDistrict('Ranchi')} />
-                  <circle cx="85" cy="85" r="6" className={`cursor-pointer transition-all ${selectedDistrict === 'Khunti' ? 'fill-blue-500 stroke-white stroke-2' : 'fill-emerald-600'}`} onClick={() => setSelectedDistrict('Khunti')} />
-                  <circle cx="145" cy="50" r="7" className={`cursor-pointer transition-all ${selectedDistrict === 'Dhanbad' ? 'fill-blue-500 stroke-white stroke-2' : 'fill-amber-600'}`} onClick={() => setSelectedDistrict('Dhanbad')} />
-                  <circle cx="150" cy="90" r="8" className={`cursor-pointer transition-all ${selectedDistrict === 'East Singhbhum' ? 'fill-blue-500 stroke-white stroke-2' : 'fill-blue-500'}`} onClick={() => setSelectedDistrict('East Singhbhum')} />
-                  <circle cx="100" cy="100" r="7" className={`cursor-pointer transition-all ${selectedDistrict === 'West Singhbhum' ? 'fill-blue-500 stroke-white stroke-2' : 'fill-purple-600'}`} onClick={() => setSelectedDistrict('West Singhbhum')} />
-                  <text x="65" y="65" fill="#94A3B8" fontSize="8" textAnchor="middle">Gumla</text>
-                  <text x="95" y="55" fill="#94A3B8" fontSize="8" textAnchor="middle">Ranchi</text>
-                  <text x="145" y="40" fill="#94A3B8" fontSize="8" textAnchor="middle">Dhanbad</text>
-                  <text x="150" y="80" fill="#94A3B8" fontSize="8" textAnchor="middle">Jsr</text>
-                </svg>
+            ) : (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {[...new Set(collaborations.map(c => c.district).filter(Boolean))].map((d) => (
+                  <span
+                    key={d}
+                    className="text-[11px] px-2.5 py-1 rounded-lg font-medium bg-blue-600 text-white"
+                  >
+                    {d}
+                  </span>
+                ))}
               </div>
-
-              {/* District info card */}
-              <div className="mt-3 bg-slate-800/80 rounded-lg p-2.5 border border-slate-700 text-xs">
-                <div className="flex justify-between font-bold text-white mb-0.5">
-                  <span>{selectedDistrict} District</span>
-                  <span className="text-emerald-400">{districtSummary[selectedDistrict]?.projects || 2} Active Projects</span>
-                </div>
-                <div className="text-[11px] text-slate-300">
-                  Focus: {districtSummary[selectedDistrict]?.domain || 'Water & Agriculture'}
-                </div>
-                <div className="text-[10px] text-slate-400 mt-1">
-                  Beneficiaries: {districtSummary[selectedDistrict]?.beneficiaries || '20,000+'} verified citizens
-                </div>
-              </div>
-            </div>
-
-            {/* Quick District selection chips */}
-            <div className="flex flex-wrap gap-1.5 mt-3">
-              {['Gumla', 'Khunti', 'West Singhbhum', 'Dhanbad', 'Ranchi', 'East Singhbhum'].map((d) => (
-                <button
-                  key={d}
-                  onClick={() => setSelectedDistrict(d)}
-                  className={`text-[11px] px-2.5 py-1 rounded-lg font-medium transition-all ${
-                    selectedDistrict === d
-                      ? 'bg-blue-600 text-white font-bold shadow-xs'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  {d}
-                </button>
-              ))}
-            </div>
+            )}
           </div>
 
           {/* CSR Focus Utilization */}
@@ -407,33 +359,31 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
             </div>
           </div>
 
-          {/* Risk Alert & Action Required Box */}
-          <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4.5 space-y-3">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
-                <AlertTriangle className="w-4 h-4" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs font-bold text-amber-950">AI Risk Alert: Gumla Pilot</p>
-                  <span className="text-[9px] uppercase font-extrabold px-1.5 py-0.5 rounded bg-amber-200 text-amber-800">Medium</span>
+          {/* Action Required */}
+          {collaborations.length > 0 && collaborations.some(c => c.status === 'Field Pilot') && (
+            <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
+                  <AlertTriangle className="w-4 h-4" />
                 </div>
-                <p className="text-[11px] text-amber-800 mt-1 leading-normal">
-                  Sensor probe casing delayed 18 days due to supplier backorder.
-                </p>
-                <div className="mt-2 text-[11px] font-semibold text-amber-900 bg-amber-100/70 p-2 rounded-lg border border-amber-200/60">
-                  💡 <strong>Recommended:</strong> Route fabrication to Bokaro Bio-Clean or Adityapur Tool Room (48-hr turnaround).
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-bold text-amber-950">Field Pilots Need Review</p>
+                    <span className="text-[9px] uppercase font-extrabold px-1.5 py-0.5 rounded bg-amber-200 text-amber-800">Action</span>
+                  </div>
+                  <p className="text-[11px] text-amber-800 mt-1 leading-normal">
+                    {collaborations.filter(c => c.status === 'Field Pilot').length} collaboration(s) in field pilot stage require periodic validation.
+                  </p>
                 </div>
               </div>
+              <button
+                onClick={() => onNavigateTo('pipeline')}
+                className="w-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-1.5 rounded-lg transition-colors cursor-pointer text-center"
+              >
+                View Pipeline Status
+              </button>
             </div>
-
-            <button
-              onClick={() => onNavigateTo('pipeline')}
-              className="w-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-1.5 rounded-lg transition-colors cursor-pointer text-center"
-            >
-              Resolve with MSME Partner
-            </button>
-          </div>
+          )}
         </div>
       </div>
     </div>
