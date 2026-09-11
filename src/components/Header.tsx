@@ -1,6 +1,7 @@
 import React from 'react';
-import { Search, Bell, ShieldAlert, CheckCircle2, Languages } from 'lucide-react';
+import { Search, Bell, ShieldAlert, CheckCircle2, Languages, LogOut } from 'lucide-react';
 import { IndustryMode, UserRole } from '../types';
+import { handlePortalLogout } from '../utils/navigation';
 
 interface HeaderProps {
   currentTab: string;
@@ -127,6 +128,16 @@ export const Header: React.FC<HeaderProps> = ({
           <span className="text-[10px] font-bold text-slate-400 uppercase mr-1">Role:</span>
           <span className="font-semibold text-slate-700">{userRole}</span>
         </div>
+
+        {/* Exit to Login Portal */}
+        <button
+          onClick={handlePortalLogout}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-500 hover:text-rose-600 hover:bg-rose-50 text-xs font-semibold transition-colors cursor-pointer"
+          title="Sign Out to JanaSamadhan Login Portal"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Logout</span>
+        </button>
       </div>
     </header>
   );
